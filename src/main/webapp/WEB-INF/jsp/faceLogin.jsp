@@ -63,6 +63,9 @@
 				success:function(result){
 				    if (result == "success") {
 				        alert("识别成功！");
+
+				    //    查询用户数据
+
 					} else {
 				        alert("识别失败！");
 					}
