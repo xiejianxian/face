@@ -74,7 +74,23 @@
                 dataType:"JSON",
                 success:function(result){
                     if (result.error_msg == "SUCCESS") {
-                        alert("人脸注册成功！");
+                        var faceId = result.faceId;
+                        $.ajax({
+                            url:"${pageContext.request.contextPath}/face/addFaceIdToDatabase",
+                            type:"post",
+                            data:{},
+                            dataType:"JSON",
+                            success:function(result){
+                                if (result == "success") {
+                                    alert("人脸注册成功！");
+                                } else {
+                                    alert("人脸注册失败！");
+                                }
+                            }
+                        });
+
+                    } else {
+                        alert("人脸注册失败！");
                     }
                 },
                 error:function (data) {

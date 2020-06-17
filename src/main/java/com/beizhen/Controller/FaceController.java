@@ -2,17 +2,22 @@ package com.beizhen.Controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.beizhen.entity.YcUser;
+import com.beizhen.service.YcUserService;
 import com.beizhen.util.GetToken;
 import com.beizhen.util.GsonUtils;
 import com.beizhen.util.HttpUtil;
+import org.apache.ibatis.annotations.Param;
 import org.json.JSONObject;
 import com.baidu.aip.face.AipFace;
-import com.beizhen.entity.User;
+import com.beizhen.entity.SignInFace;
 import com.beizhen.util.FactoryUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
@@ -27,6 +32,10 @@ public class FaceController {
 
     //人脸模块对象
     AipFace aipFace = FactoryUtil.getAipFace();
+    private String faceId = "";
+
+    @Resource
+    private YcUserService ycUserService;
 
     /**
      * 访问人脸注册页面
@@ -47,6 +56,24 @@ public class FaceController {
     }
 
     /**
+     * 人脸注册成功时将用户id保存至数据库
+     * @return
+     */
+    @RequestMapping("addFaceIdToDatabase")
+    @ResponseBody
+    public String addFaceIdToDatabase() {
+        String result = "";
+        int r = ycUserService.updUserByFaceId(1,faceId);
+        if (r > 0) {
+            result = "success";
+        } else {
+            result = "failed";
+        }
+        return JSON.toJSONString(result);
+    }
+
+
+    /**
      * 人脸注册
      * @param user
      * @param request
@@ -55,7 +82,7 @@ public class FaceController {
      */
     @RequestMapping("signIn")
     @ResponseBody
-    public String signIn(User user, HttpServletRequest request, HttpServletResponse response) {
+    public String signIn(SignInFace user, HttpServletRequest request, HttpServletResponse response) {
         //结果
         String result = "";
 
@@ -90,24 +117,17 @@ public class FaceController {
 //            results = "false";
 //            System.out.println("识别相似度小于90分");
 //        }
-
-
-
-
-
-
-
-
-
         if (user.getUser_info().equals("") || null == user.getUser_info()) {
             result = "用户名为空";
             return JSON.toJSONString(result);
         } else {
             String groupId = "1";   //用户组id
             String userId = UUID.randomUUID().toString().replace("-", "").toUpperCase();//用户id(生成唯一标识)
+            faceId = userId;
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("user_info","斜键仙");
             JSONObject resultObject = aipFace.addUser(user.getImgData(),"BASE64",groupId,userId,map);
+            //resultObject.append("faceId",userId);
             System.out.println(resultObject.toString(2));
             return resultObject.toString();
         }

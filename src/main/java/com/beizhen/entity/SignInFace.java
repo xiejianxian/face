@@ -1,15 +1,15 @@
 package com.beizhen.entity;
 
-public class User {
+public class SignInFace {
 
     private String imgData;
     private String imgName;
     private String user_info;
 
-    public User() {
+    public SignInFace() {
     }
 
-    public User(String imgData, String imgName, String user_info) {
+    public SignInFace(String imgData, String imgName, String user_info) {
         this.imgData = imgData;
         this.imgName = imgName;
         this.user_info = user_info;
