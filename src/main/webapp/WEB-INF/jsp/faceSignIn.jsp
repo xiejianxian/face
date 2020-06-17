@@ -73,6 +73,7 @@
                 },
                 dataType:"JSON",
                 success:function(result){
+                    alert(result);
                     if (result.error_msg == "SUCCESS") {
                         var faceId = result.faceId;
                         $.ajax({
@@ -83,14 +84,14 @@
                             success:function(result){
                                 if (result == "success") {
                                     alert("人脸注册成功！");
+                                    window.location="${pageContext.request.contextPath}/face/loginPage";
                                 } else {
                                     alert("人脸注册失败！");
                                 }
                             }
                         });
-
-                    } else {
-                        alert("人脸注册失败！");
+                    } else if (result == "exist") {
+                        alert("人脸已存在，无需再次录入！");
                     }
                 },
                 error:function (data) {
