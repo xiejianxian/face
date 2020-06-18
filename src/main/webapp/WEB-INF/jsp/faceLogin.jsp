@@ -63,11 +63,11 @@
 				success:function(result){
 				    if (result == "success") {
 				        alert("识别成功！");
-
-				    //    查询用户数据
-
-					} else {
-				        alert("识别失败！");
+				        window.location="${pageContext.request.contextPath}/face/findUserByFaceId";
+					} else if (result == "again") {
+				        alert("识别失败，请您正对镜头再次识别");
+					} else if (result == "failed") {
+				        alert("您还没有注册人脸，请登录后进行注册！");
 					}
 				},
 				error:function () {

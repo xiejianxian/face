@@ -11,6 +11,12 @@
         where u_id = #{uid}
     </update>
 
+    <select id="findUserByFaceId" resultType="YcUser">
+        select *
+        from yc_user
+        where u_userFaceId = #{userFaceId}
+    </select>
+
 </mapper>
 
 

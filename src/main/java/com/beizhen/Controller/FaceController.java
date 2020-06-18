@@ -7,19 +7,17 @@ import com.beizhen.service.YcUserService;
 import com.beizhen.util.GetToken;
 import com.beizhen.util.GsonUtils;
 import com.beizhen.util.HttpUtil;
-import org.apache.ibatis.annotations.Param;
 import org.json.JSONObject;
 import com.baidu.aip.face.AipFace;
 import com.beizhen.entity.SignInFace;
 import com.beizhen.util.FactoryUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +30,8 @@ public class FaceController {
 
     //人脸模块对象
     AipFace aipFace = FactoryUtil.getAipFace();
-    private String faceId = "";
+    private String faceId = ""; //注册时使用的faceId
+    private String loginFaceId = ""; //登录时使用的faceId
 
     @Resource
     private YcUserService ycUserService;
@@ -70,6 +69,18 @@ public class FaceController {
             result = "failed";
         }
         return JSON.toJSONString(result);
+    }
+
+    /**
+     * 识别成功根据FaceId查询该用户
+     * @param session
+     * @return
+     */
+    @RequestMapping("findUserByFaceId")
+    public String findUserByFaceId(HttpSession session) {
+        YcUser user = ycUserService.findUserByFaceId(loginFaceId);
+        session.setAttribute("user",user);
+        return "jsp/loginSuccess";
     }
 
 
@@ -136,14 +147,17 @@ public class FaceController {
         if (null != object) {
             JSONArray string = (JSONArray) object.get("user_list");
             com.alibaba.fastjson.JSONObject ob = (com.alibaba.fastjson.JSONObject) string.get(0);
+            loginFaceId = ob.getString("user_id");
             BigDecimal valueOf = (BigDecimal) ob.get("score");
             if(valueOf.doubleValue() > 90) {
                 results = "success";
                 System.out.println("识别相似度大于90分");
-            }else {
-                results = "false";
+            } else if (valueOf.doubleValue() < 90) {
+                results = "again";
                 System.out.println("识别相似度小于90分");
             }
+        } else {
+            results = "failed";
         }
         return JSON.toJSONString(results);
     }
